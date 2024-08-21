@@ -61,15 +61,18 @@ pub fn run(config: Config) -> MyResult<()> {
         match open(&filename) {
             Err(err) => eprintln!("Failed to open {}: {}", filename, err),
             Ok(file) => {
-                let mut number: usize = 0;
-                for line_result in file.lines() {
-                    let line = line_result?;
+                let mut blank_lines = 0;
+                for (line_num, line) in file.lines().enumerate() {
+                    let line = line?;
                     if config.number_lines {
-                        number += 1;
-                        println!("{} {}", &number, line);
+                        println!("{:>6}\t{}", line_num + 1, line);
                     } else if config.number_nonblank_lines {
-                        if line != "" {number += 1}
-                        println!("{} {}", &number, line);
+                        if !line.is_empty() {
+                            println!("{:>6}\t{}", line_num + 1 - blank_lines, line);
+                        } else {
+                            blank_lines += 1;
+                            println!();
+                        }
                     } else {
                         println!("{}", line);
                     }
